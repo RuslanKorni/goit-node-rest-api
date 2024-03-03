@@ -1,22 +1,24 @@
-const fs = require("fs/promises");
-const path = require("path");
+import path from "path";
+import fs from "fs/promises";
+import { nanoid } from "nanoid";
 
-const contactsPath = path.resolve(__dirname, "db", "contacts.json");
+const relPath = ["db", "contacts.json"];
+const contactsPath = path.resolve(...relPath);
 
-const listContacts = async () => {
+export const listContacts = async () => {
   // Повертає масив контактів
   const data = await fs.readFile(contactsPath);
   return JSON.parse(data);
 };
 
-const getContactById = async (id) => {
+export const getContactById = async (id) => {
   // Повертає об'єкт контакту з таким id. Повертає null, якщо контакт з таким id не знайдений.
   const contacts = await listContacts();
   const result = contacts.find((contact) => contact.id === id);
   return result || null;
 };
 
-const removeContact = async (id) => {
+export const removeContact = async (id) => {
   // Повертає об'єкт видаленого контакту. Повертає null, якщо контакт з таким id не знайдений.
   const contacts = await listContacts();
   const index = contacts.findIndex((contact) => contact.id === id);
@@ -28,14 +30,32 @@ const removeContact = async (id) => {
   return result;
 };
 
-const addContact = async (data) => {
+export const addContact = async (data) => {
   // Повертає об'єкт доданого контакту.
   const contacts = await listContacts();
   const newContact = {
-    id: (await import("nanoid")).nanoid(),
+    id: nanoid(),
     ...data,
   };
   contacts.push(newContact);
   await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
   return newContact;
 };
+
+export const updateContact = async (id, newData) => {
+  // Оновлює контакт за ідентифікатором та повертає оновлений контакт.
+  const contacts = await listContacts();
+  const index = contacts.findIndex((contact) => contact.id === id);
+  if (index === -1) {
+    return null; // Повертаємо null, якщо контакт з таким id не знайдений.
+  }
+
+  const updatedContact = { ...contacts[index], ...newData }; // Об'єднуємо існуючий контакт з новими даними для оновлення.
+  contacts[index] = updatedContact; // Оновлюємо контакт в масиві.
+
+  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2)); // Записуємо оновлений масив контактів у файл.
+
+  return updatedContact; // Повертаємо оновлений контакт.
+};
+
+
