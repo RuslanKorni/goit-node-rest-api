@@ -2,8 +2,7 @@ import path from "path";
 import fs from "fs/promises";
 import { nanoid } from "nanoid";
 
-const relPath = ["db", "contacts.json"];
-const contactsPath = path.resolve(...relPath);
+const contactsPath = path.resolve("db", "contacts.json");
 
 export const listContacts = async () => {
   // Повертає масив контактів
@@ -41,7 +40,6 @@ export const addContact = async (data) => {
   await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
   return newContact;
 };
-
 export const updateContact = async (id, newData) => {
   // Оновлює контакт за ідентифікатором та повертає оновлений контакт.
   const contacts = await listContacts();
@@ -57,5 +55,3 @@ export const updateContact = async (id, newData) => {
 
   return updatedContact; // Повертаємо оновлений контакт.
 };
-
-
