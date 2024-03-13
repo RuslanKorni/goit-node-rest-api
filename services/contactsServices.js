@@ -9,4 +9,4 @@ export const addContact = (data) => ContactDb.create(data);
 export const removeContact = (id) => ContactDb.findByIdAndDelete(id);
 
 export const updateContact = (id, data) =>
-  ContactDb.findByIdAndUpdate(id, data, { new: truerun, runValidators: true });
+  ContactDb.findByIdAndUpdate(id, data);
