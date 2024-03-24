@@ -1,6 +1,7 @@
 import { ContactDb } from "../models/Contact.js";
 
-export const listContacts = () => ContactDb.find({});
+export const listContacts = (filter = {}, query = {}) =>
+  ContactDb.find(filter, null, query).populate("owner", "email");
 
 export const getContactById = (id) => ContactDb.findById(id);
 

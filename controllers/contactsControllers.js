@@ -10,8 +10,18 @@ import HttpError from "../helpers/HttpError.js";
 
 import { ctrlWrapper } from "../helpers/ctrlWrapper.js";
 
-const getAllContacts = async (_, res) => {
-  const result = await listContacts();
+const getAllContacts = async (req, res) => {
+  const { _id: owner } = req.user;
+
+  const { page = 1, limit = 20, favorite } = req.query;
+  const skip = (page - 1) * limit;
+
+const filter = {
+  owner,
+  ...(favorite !== undefined ? { favorite } : {}),
+};
+
+  const result = await listContacts(filter, { skip, limit });
   res.json(result);
 };
 
@@ -35,7 +45,9 @@ const deleteContact = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const result = await addContact(req.body);
+  const { _id: owner } = req.user;
+
+  const result = await addContact({ ...req.body, owner });
 
   res.status(201).json(result);
 };
