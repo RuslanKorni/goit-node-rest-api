@@ -24,8 +24,10 @@ const register = async (req, res) => {
   const newUser = await registerServis(req.body);
 
   res.status(201).json({
-    email: newUser.email,
-    subscription: newUser.subscription,
+    user: {
+      email: "example@example.com",
+      subscription: "starter",
+    },
   });
 };
 
@@ -49,9 +51,12 @@ const login = async (req, res) => {
   };
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "23h" });
-  await updateUser({ _id: id }, { token });
+  const result = await updateUser({ _id: id }, { token });
 
-  res.json({ token });
+  res.json({
+    token,
+    user: { email: result.email, subscription: result.subscription },
+  });
 };
 
 const getCurrent = async (req, res) => {
@@ -65,9 +70,9 @@ const getCurrent = async (req, res) => {
 
 const logout = async (req, res) => {
   const { _id } = req.user;
-  await updateUser({ _id }, { token: "" });
+  await updateUser({ _id }, { token: null });
 
-  res.status(204);
+  res.status(204).send();
 };
 
 const updateSubscription = async (req, res) => {

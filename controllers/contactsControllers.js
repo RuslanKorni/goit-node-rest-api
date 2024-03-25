@@ -4,6 +4,9 @@ import {
   addContact,
   removeContact,
   updateContact as updateContactsCarr,
+  getOneContactByOwner,
+  removeOneContactByOwner,
+  updateOneContactByOwner,
 } from "../services/contactsServices.js";
 
 import HttpError from "../helpers/HttpError.js";
@@ -16,18 +19,20 @@ const getAllContacts = async (req, res) => {
   const { page = 1, limit = 20, favorite } = req.query;
   const skip = (page - 1) * limit;
 
-const filter = {
-  owner,
-  ...(favorite !== undefined ? { favorite } : {}),
-};
+  const filter = {
+    owner,
+    ...(favorite !== undefined ? { favorite } : {}),
+  };
 
   const result = await listContacts(filter, { skip, limit });
   res.json(result);
 };
 
 const getOneContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await getContactById(id);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+
+  const result = await getOneContactByOwner({ _id, owner });
   if (!result) {
     throw HttpError(404, `Contact with id:${id} not found`);
   }
@@ -35,8 +40,10 @@ const getOneContact = async (req, res) => {
 };
 
 const deleteContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await removeContact(id);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+
+  const result = await removeOneContactByOwner({ _id, owner });
   if (!result) {
     throw HttpError(404, `Contact with id:${id} not found`);
   }
@@ -53,8 +60,9 @@ const createContact = async (req, res) => {
 };
 
 const updateContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await updateContactsCarr(id, req.body);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+  const result = await updateOneContactByOwner({ _id, owner }, req.body);
 
   if (!result) {
     throw HttpError(404, `Contact with id:${id} not found`);
@@ -64,8 +72,10 @@ const updateContact = async (req, res) => {
 };
 
 const updateStatusContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await updateContactsCarr(id, req.body);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+
+  const result = await updateOneContactByOwner({ _id, owner }, req.body);
   if (!result) {
     throw HttpError(404, `Contact with id:${id} not found`);
   }
